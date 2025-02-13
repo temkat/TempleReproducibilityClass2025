@@ -97,5 +97,5 @@ ggplot(myco, aes(x=Treatment, y=DON, fill=Cultivar))+
   facet_wrap(~Cultivar)
 
 #For the data we would choose a boxplot as it is a cleaner set of data that appears
-#to be more conventional for this type of anaylsis. The boxplot with the points shows where the 
+#to be more conventional for this type of analysis. The boxplot with the points shows where the 
 #outliers are as well as the majority fall if the points are placed in the layer.
