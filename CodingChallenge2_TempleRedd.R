@@ -15,8 +15,8 @@ ggplot(myco, aes(x=Treatment, y=DON, color=Cultivar))+
 #convert this data into a bar chart with standard-error error bars using the 
 #stat_summary() command.
 ggplot(myco, aes(x=Treatment, y=DON, color=Cultivar))+
-  stat_summary(fun=mean, geom="bar")+
-  stat_summary(fun.data = mean_se, geom = "errorbar")+
+  stat_summary(fun=mean, geom="bar", position="dodge")+
+  stat_summary(fun.data = mean_se, geom = "errorbar", position="dodge")+
   xlab("")+
   ylab("DON (ppm)")
 
@@ -89,8 +89,8 @@ ggplot(myco, aes(x=Treatment, y=DON, fill=Cultivar))+
 
 #Dot plot
 ggplot(myco, aes(x=Treatment, y=DON, fill=Cultivar))+
-  geom_dotplot(binaxis="DON")+
-  geom_point(pch=21, alpha=0.4, position=position_jitterdodge())+  #transparancy is 0-1 (.5=5)
+  geom_dotplot(binaxis="y", binwidth = 10, method = "histodot",
+               position=position_jitterdodge())+
   scale_fill_manual(values=colorchoice)+
   xlab("Treatment Type")+
   ylab("DON (ppm)")+
