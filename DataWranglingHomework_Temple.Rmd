@@ -1,0 +1,213 @@
+---
+title: "Data Wrangling Homework (Notes)"
+author: "Katie Temple"
+date: "2025-03-20"
+output: 
+  word_document: 
+    toc: true 
+  md_document:
+    variant: gfm 
+  html_document: 
+    toc: true
+    toc_float: true
+---
+
+# Data Wrangling Notes
+How to handle your data and make changes within R itself. This is expansion on basic data handling within the program. 
+
+Tidyverse can do a lot and it's worth looking at the link that was provided. Time should be spent self-learning more about this package and its capabilities.
+<https://tidyr.tidyverse.org/index.html>
+
+
+```{r}
+library(tidyverse)
+microbiome.fungi<- read.csv ("Bull_Richness(1).csv")
+str (microbiome.fungi)
+```
+### Select Function(): Selecting Colmns of Interest
+
+Using the select() function allows you to select certain *columns* from your data.
+
+```{r}
+microbiome.fungi2<- select (microbiome.fungi, SampleID, Crop, Compartment: Fungicide, richness) #for the compartment the : is used to select all the columns in order through fungicide to year
+```
+
+### Filter Function: Another Way to Subset for rows
+This is another way to subset data. The easiest way is the one that you find the easiest personally. Is almost like the compantion to the select function. This allows you to select certain *rows*. This is also similar to basically telling coodinates of the data as well but with more clear text almost.
+```{r}
+head (filter (microbiome.fungi2, Treatment == "Conv."))
+```
+
+```{r}
+# &
+head(filter(microbiome.fungi2, Treatment== "Conv." & Fungicide == "C")) 
+#By usining the & symbol, you can select more specific rows of interest. In my own data I would likely select a site and a treatment in this case (fenced and trapped).
+
+# OR (|)
+head(filter(microbiome.fungi2, Sample == "A" | Sample == "B"))
+# Selects samples A or B. For own data I might do this with sex of the bird.
+
+
+```
+
+### Mutate (): Creating New Columns
+Mutate() allows you to quickly create new columns. 
+```{r}
+#base r column creation
+microbiome.fungi2$logRich <- log (microbiome.fungi2$richness)
+
+#Create a new column with the name LogRich in a more straightforward fashion.
+head(mutate(microbiome.fungi2, LogRich = log (richness)))
+
+#You can create a new column which combines other ones such as Crop and Treatment
+head (mutate (microbiome.fungi2, Crop_Treatment = paste(Crop, Treatment)))
+```
+
+### Pipelines
+As described directly in the tutorial as it's super clear and probably more useful then me tring to translate it into Katie language. 
+"We can also combine multiple functions together. This is an important concept and is very powerful. It helps to try to visualize what you are doing to your data at each step.
+
+We will combine all previous steps into one large string of functions.
+
+When we do this we do not have to specify the data in each function. The data from the previous step is transferred to the next step."
+
+"Allows you to string things together."
+
+*Katie note:* This can be used instead of getting frustrated and just making a new csv file. This also ensures I am not miscopying data. 
+
+```{r}
+#Can combine everything we did above in separate steps all into one step.
+microbiome.fungi %>%
+  select (SampleID, Crop, Compartment: Fungicide, richness) %>% #select columns
+  filter (Treatment == "Conv.") %>% #subsetting to only include the conventional treatment rows.
+  mutate(logRich= log(richness))%>% #creates a new column of the log richness
+  head()#displays the first six rows of the data including column names.
+```
+
+### Summarising Data
+The summarise() function allows for finding things such as means and standard deviations/errors. 
+```{r}
+microbiome.fungi%>%
+  select (SampleID, Crop, Compartment: Fungicide, richness)%>% #selecting columns
+  filter (Treatment == "Conv.")%>% #filtering for rows of interest
+  mutate (logRich = log(richness))%>% #Creatres a new column with the log of richess
+  summarise(Mean.rich = mean(logRich)) #Calculates the overall mean log richness within the conventionally managed treatment
+```
+This function also allows for multple summary statistics to be calculated and displayed.
+```{r}
+microbiome.fungi %>%
+  select (SampleID, Crop, Compartment:Fungicide, richness)%>% #selecting columns
+  group_by (Treatment, Fungicide)%>% #groups by the treatment and fungicide to later calculate summary stats by group!
+  mutate(logRich= log(richness))%>% #creates new column with the log of the richness
+  summarise(Mean.richness = mean(logRich), #calculates the mean richness, st. dev, and standard deviation.
+      n=n(),
+      sd.dev= sd(logRich))%>%
+  mutate(std.err= sd.dev/sqrt(n))
+
+```
+
+```{r}
+#If you want summary statistics by group, you can use the group_by() function.
+microbiome.fungi%>%
+  select (SampleID, Crop, Compartment:Fungicide, richness)%>%
+  group_by(Treatment, Fungicide) %>% #groups by treatment and fungicide to later calculate summary stats by group.
+  mutate (logRich = log(richness))%>%
+  summarise (Mean.rich = mean(logRich),
+             n = n(),
+             sd.dev = sd(logRich))%>%
+  mutate(std.err = sd.dev/sqrt(n))
+```
+
+### Wrangling Data Into A Plot
+With tidyverse you can use all of what is listed above in combination with ggplot.
+*"In this case you would not have to enter the data statement; you just need to start putting in aesthetics."*
+```{r}
+microbiome.fungi%>%
+  select (SampleID, Crop, Compartment:Fungicide, richness)%>%
+  group_by(Treatment, Fungicide) %>% #groups by treatment and fungicide to later calculate summary stats by group.
+  mutate (logRich = log(richness))%>%
+  summarise (Mean.rich = mean(logRich),
+             n = n(),
+             sd.dev = sd(logRich))%>%
+  mutate(std.err = sd.dev/sqrt(n))%>%
+  ggplot(aes(x = Fungicide, y = Mean.rich))+ #add in gg plot. switch from pipeline to "+"
+    geom_bar(stat="identity")+ #bar graph
+    geom_errorbar(aes (x=Fungicide, ymin=Mean.rich-std.err, ymax=Mean.rich+std.err), width=0.4)+
+    theme_minimal()+
+    xlab("")+
+    ylab("Log Richness")+
+    facet_wrap(~Treatment)
+```
+
+### Joining
+There are a lot of joining functions and can be super useful. These are functions that allow you to combine multiple data sets based on a common set of variables.The variable names should match.
+" - left_join() - Keep all rows of X and add matching rows from Y. Any rows in Y that don’t match X are excluded.
+- right_join() - reverse of left_join() 
+- inner_join() - only keep rows that are common to both X AND Y, remove everything else. 
+- full_join() - Keep any columns that are in either X or Y "
+```{r}
+#Split data into separate sets
+#just select richness and SampleID
+richness <- microbiome.fungi %>%
+  select(SampleID, richness)
+
+#select columns that don't include metadata.
+metadata <- microbiome.fungi%>%
+  select (SampleID, Fungicide, Crop, Compartment, GrowthStage, Treatment, Rep, Sample)
+
+head(metadata)
+```
+```{r}
+head(richness)
+```
+
+```{r}
+#Now join.
+head(left_join(metadata, richness, by = "SampleID")) #add richness data to the metadata based on the common column of sampleID
+```
+
+### Pivoting 
+Can be useful for converting from wide to long format and back again. This is done with pivot_longer() and pivot_wider(). Long data is one observation per sample. Wide data is multiple observations per row (like resighting data to create an encounter history). Often you want to fo from wide to long, but that is not always the case. Once you understand the pivot_longer() function you will also understand wider.
+```{r}
+microbiome.fungi %>%
+  select (SampleID, Crop, Compartment:Fungicide, richness)%>%
+  group_by(Treatment, Fungicide)%>%
+  summarise(Mean= mean(richness))
+```
+
+Wide format- sets the values within the fungicide column into column names.
+Goal of exercise is to calculate the difference in means.
+```{r}
+microbiome.fungi %>%
+  select (SampleID, Crop, Compartment:Fungicide, richness)%>%
+  group_by(Treatment, Fungicide)%>%
+  summarise(Mean= mean(richness))%>%
+  pivot_wider (names_from=Fungicide, values_from = Mean) #pivots into wider format. This takes the name of the fungicide for new columns and the values for the new columns from the Mean.
+```
+
+```{r}
+#This new format alllows you to calculate the difference of the means for c and F.
+microbiome.fungi %>%
+  select (SampleID, Crop, Compartment:Fungicide, richness)%>%
+  group_by(Treatment, Fungicide)%>%
+  summarise(Mean= mean(richness))%>%
+  pivot_wider (names_from=Fungicide, values_from = Mean)%>% #pivots into wider format. This takes the name of the fungicide for new columns and the values for the new columns from the Mean.
+  mutate(diff.fungicide = C - F) #new column that is the difference between the two groups of C and F. 
+```
+
+```{r}
+#Now create the plot of the difference of the means with ggplot.
+
+microbiome.fungi %>%
+  select (SampleID, Crop, Compartment:Fungicide, richness)%>%
+  group_by(Treatment, Fungicide)%>%
+  summarise(Mean= mean(richness))%>%
+  pivot_wider (names_from=Fungicide, values_from = Mean)%>% #pivots into wider format. This takes the name of the fungicide for new columns and the values for the new columns from the Mean.
+  mutate(diff.fungicide = C - F)%>% #new column that is the difference between the two groups of C and F. 
+  ggplot(aes(x = Treatment, y=diff.fungicide))+ #rememeber since it has been piped (pipelined?) withe all the other functions you don't need to call the dataset again only the aesthic.
+  geom_col()+
+  theme_minimal()+
+  xlab("")+
+  ylab("Difference in average species richness")
+```
+
