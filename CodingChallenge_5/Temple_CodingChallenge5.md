@@ -178,14 +178,15 @@ alpha_average2<- alpha_average%>% #new new data frame and use alpha_average as r
     right
 
 ``` r
-#still need to remove background!!!
 alpha_average2%>% #part 6a
   select(Time_Point,diff.cotton.even, diff.soybean.even)%>% #6b
   pivot_longer(c(diff.cotton.even, diff.soybean.even), names_to = "diff")%>%#6c
   ggplot( aes(x = Time_Point, y = value, color = diff, group = diff))+
   geom_line()+
   xlab("Time (hrs)")+
-  ylab ("Difference from soil in Pielou's evenness")
+  ylab ("Difference from soil in Pielou's evenness")+
+  theme_classic()+
+  theme(strip.background=element_blank())
 ```
 
 ![](Temple_CodingChallenge5_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
@@ -197,4 +198,4 @@ Coding Challenge 5. Provide me a link to your github written as a
 clickable link in your .pdf or .docx
 
 [Katie Temple’s GitHub Coding Challenge 5
-Directory](https://github.com/temkat/TempleReproducibilityClass2025/tree/69531926d11d94f37eec0ff0bfdad75b7e135173/CodingChallenge_5)
+Directory](https://github.com/temkat/TempleReproducibilityClass2025/tree/1ecf400e52cac36a6c040b26316066dd4c396897/CodingChallenge_5)
