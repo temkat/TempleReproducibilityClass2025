@@ -3,12 +3,12 @@ title: "Coding Challenge 5"
 author: "Katie Temple"
 date: "2025-03-20"
 output: 
+  word_document:
+    toc: true
   html_document:
      toc: true 
   md_document:
      variant: gfm  
-  word_document:
-    toc: true
 ---
 
 
@@ -109,5 +109,5 @@ alpha_average2%>% #part 6a
 Commit and push a gfm .md file to GitHub inside a directory called Coding Challenge 5. 
 Provide me a link to your github written as a clickable link in your .pdf or .docx
 
-[Katie Temple's GitHub Repository Link]()
+[Katie Temple's GitHub Coding Challenge 5 Directory](https://github.com/temkat/TempleReproducibilityClass2025/tree/69531926d11d94f37eec0ff0bfdad75b7e135173/CodingChallenge_5) 
 
