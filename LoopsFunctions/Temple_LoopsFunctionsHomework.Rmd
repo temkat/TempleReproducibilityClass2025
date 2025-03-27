@@ -1,0 +1,181 @@
+---
+title: "Loops and Functions Homework"
+author: "Katie Temple"
+date: "2025-03-27"
+output: 
+  word_document: 
+    toc: true
+  html_document:
+    toc: true
+    toc_float: true
+---
+
+# Loops, Functions, and Iterations
+```{r}
+library (ggplot2)
+library(tidyverse) 
+library("drc")
+
+
+```
+
+## Functions
+"Things that do things to other things"
+
+You can make a function so that you don't have to handwrite the equation each time increasing the chance of an error and creating non-reproducible work. It also makes your life easier.
+
+```{r}
+#Example: Converting Fahrenheit to Celcius
+
+#here's the equation by hand
+#(5*(degree_f-32)/9) degree_f= the degrees in f you want to convert to c
+(5*(32-32)/9)
+#0
+
+#another example for today's forecast 
+(5*(74-32)/9)
+#23.33
+
+#rather than having to write out the equation by hand and risking mistakes, you 
+#can covert the equation into a function.
+F_to_C <- function(farenheit_temp){   #farenheit_temp is what you will input each time
+  celsius <- (5*(farenheit_temp - 32)/9) #this defines what the function is actually doing which is the rquation for converting f to c. Here you can see that farenheit_temp will be put in the equation and that's for you to enter each time/what you want r to calculate
+  return (celsius) #return is what the result of the function is which is returning the value calculated for celcius
+} #the function will appear in your global environment.
+#when you see the function in the environment you can see what value/variable you need to input into the function
+F_to_C(32)
+#0 which matches what we calculated by hand
+
+F_to_C(74)
+#23.33
+```
+### Anatomy of a function
+The below text is directly copied from the assignment page.
+
+We first start with naming the function something using the backwards arrow. Then we type “function()”.
+
+After opening a new function we type the curly brackets. We will type the code we want to perform within the curly brackets.
+
+Inside the parentheses after function is where we put our variables separated by commas.
+
+"sample.function <- function(... variable goes here ...){
+  .... code goes here.... 
+  return(... output ...)
+}"
+
+1. So, in the example above we want to put the variable inside the parentheses. This is what we are going to input into the function.
+
+2. Then we input what we want to do to the variable inside the brackets
+3. Then all functions need a return() - this is what we want the output of the function to be
+
+Make sense?
+```{r}
+#creating own function with example of c to f
+#F = C x (9/5)+32
+c_to_f <- function (celcius_temp){
+  fahrenheit <- ((celcius_temp*(9/5)) + 32)
+  return (fahrenheit)
+}
+c_to_f(0)
+#returns 32
+
+c_to_f(23.33)
+#returns 73.94 which rounded is 74
+```
+
+## Iterations
+"Iterations are something you do over and over again"
+Iterations not only prevent copy and paste errors, they also help with sanity checks since it's something you do over and over and over through a data simulation.
+
+### The rep() function
+Repeats things so you don't have to 
+```{r}
+rep("A", 3) #repeats A three times
+#[1] "A" "A" "A"
+rep(c("A", "B"), 5) #repeats A B five times 
+# [1] "A" "B" "A" "B" "A" "B" "A" "B" "A" "B"
+
+rep(c(1,2,3,4), times = 4) #repeats "1,2,3,4," 4 times
+#[1] 1 2 3 4 1 2 3 4 1 2 3 4 1 2 3 4
+
+rep(c(1,2,5,2), times = 4, each = 4) #repeats 1 four times, 2 four times, 5 four times, and 2 four times.
+#[1] 1 1 1 1 2 2 2 2 5 5 5 5 2 2 2 2 1 1 1 1 2 2 2 2 5 5 5 5 2 2 2 2 1 1 1
+#[36] 1 2 2 2 2 5 5 5 5 2 2 2 2 1 1 1 1 2 2 2 2 5 5 5 5 2 2 2 2
+
+```
+
+### The seq() function
+The seq() (sequence) command allows you to write *sequences* of numbers easily.
+```{r}
+seq(from = 1, to = 7) #sequnce of numbers from 1 to 7
+#[1] 1 2 3 4 5 6 7
+
+seq(from = 0, to = 10, by = 2) #squence from 1 to 10 counting by 2s
+#[1]  0  2  4  6  8 10
+
+#combining seq() and rep()
+rep(seq (from = 0, to = 10, by = 2), times = 3, each = 2)
+#[1]  0  0  2  2  4  4  6  6  8  8 10 10  0  0  2  2  4  4  6  6  8  8 10
+#[24] 10  0  0  2  2  4  4  6  6  8  8 10 10
+#sequence from 0 to 10 counted by 2s repeats each number generated 3 times and each number in the repeated 2 each
+```
+### seq_along()
+This function "seq_along()" allows you to generate a *sequence* of numbers on *non-integer* values.
+This will become useful later on when we want to loop elements within a dataframe.
+```{r}
+#use the built in LETTERS vector as an example
+LETTERS
+#[1] "A" "B" "C" "D" "E" "F" "G" "H" "I" "J" "K" "L" "M" "N" "O" "P" "Q"
+#[18] "R" "S" "T" "U" "V" "W" "X" "Y" "Z"
+seq_along(LETTERS[1:5]) #returns the numbers 1-5 not the actual letters
+#[1] 1 2 3 4 5
+
+```
+## The for loop
+The for loop has as certain algorithm no matter what language your coding in. You tell the code how many iterations you want looped.
+
+There is an accompanying video that goes more in depth of the anatomy of a for loop 
+```{r}
+for (i in 1:10) { #normal syntax is i denoting subscript i. Include the sequence you want here.
+  print(i*2) #the next line is where you type code. What this is saying is fr each value of i it will iterate 1-10 and substitute the value for i and multiple it by 2( 1*2, 2*2, 3*2...)
+}
+#The print function was used because you have to be very explicit in for loops.
+#[1] 2
+#[1] 4
+#[1] 6
+#[1] 8
+#[1] 10
+#[1] 12
+#[1] 14
+#[1] 16
+#[1] 18
+#[1] 20
+ 
+```
+### A more complicated example
+We can create a for loop that uses our function of f to c for for values -30:100
+```{r}
+for (i in -30:100){ #for every i/value in the sequence of -30 to 100. This is your loop
+  result <- F_to_C(i) #convert Fahrenheit temps to Celsius for the value i (in the sequence) and name the product result
+  print(result) #displau result
+}
+#This only prints in the console area. You can do more with the result of the iterations.
+```
+If you want to actually do something with the results of your for loop  you can. 
+```{r}
+#Example
+#1. Set a R object to NULL
+#2. Set your for loop
+#3. Save the result of your for loop into a dataframe each iteration
+#4. append one row of the dataframe to the null object each iteration of the loop. 
+
+celcius.df <- NULL #null is empty object but want this variable in the future
+for (i in -30:100){
+  result_i <- data.frame (F_to_C(i), i) #we want each iteration to be a 1 row dataframe. We can turn the result of our function into a dataframe name result. It will be two columns with our results of the iterations and what the iteration/i was was called i (for now)
+  celcius.df <- rbind.data.frame(celcius.df, result_i)
+}
+#On the first iteration -30 will be plugged wherever there is i and will create a one row dataframe called result. Next the result dataframe is going to rowbind (rbind). This creates a new row and binds it to the celcius dataframe. It will do this for the values you've told it in the first line.
+#the result will be a celcius.df with all the values and then can be used to do what you want like plotting.
+View(celcius.df) #look at the dataframe
+```
+

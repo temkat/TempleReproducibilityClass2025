@@ -1,0 +1,41 @@
+﻿city,city_ascii,state_id,state_name,county_fips,county_name,lat,long,population,density
+New York,New York,NY,New York,36081,Queens,40.6943,-73.9249,18832416,10943.7
+Los Angeles,Los Angeles,CA,California,6037,Los Angeles,34.1141,-118.4068,11885717,3165.8
+Chicago,Chicago,IL,Illinois,17031,Cook,41.8375,-87.6866,8489066,4590.3
+Miami,Miami,FL,Florida,12086,Miami-Dade,25.784,-80.2101,6113982,4791.1
+Houston,Houston,TX,Texas,48201,Harris,29.786,-95.3885,6046392,1386.5
+Dallas,Dallas,TX,Texas,48113,Dallas,32.7935,-96.7667,5843632,1477.2
+Philadelphia,Philadelphia,PA,Pennsylvania,42101,Philadelphia,40.0077,-75.1339,5696588,4547.5
+Atlanta,Atlanta,GA,Georgia,13121,Fulton,33.7628,-84.422,5211164,1425.3
+Washington,Washington,DC,District of Columbia,11001,District of Columbia,38.9047,-77.0163,5146120,4245.2
+Boston,Boston,MA,Massachusetts,25025,Suffolk,42.3188,-71.0852,4355184,5303.3
+Phoenix,Phoenix,AZ,Arizona,4013,Maricopa,33.5722,-112.0892,4065338,1210.3
+Detroit,Detroit,MI,Michigan,26163,Wayne,42.3834,-83.1024,3716929,1771.8
+Seattle,Seattle,WA,Washington,53033,King,47.6211,-122.3244,3555253,3408
+San Francisco,San Francisco,CA,California,6075,San Francisco,37.7558,-122.4449,3364862,6914.5
+San Diego,San Diego,CA,California,6073,San Diego,32.8313,-117.1222,3057778,1640
+Minneapolis,Minneapolis,MN,Minnesota,27053,Hennepin,44.9635,-93.2678,2906807,3052
+Tampa,Tampa,FL,Florida,12057,Hillsborough,27.9945,-82.4447,2906035,1336.6
+Brooklyn,Brooklyn,NY,New York,36047,Kings,40.6501,-73.9496,2736074,15200.5
+Denver,Denver,CO,Colorado,8031,Denver,39.762,-104.8758,2691349,1800.3
+Queens,Queens,NY,New York,36081,Queens,40.7498,-73.7976,2405464,8503.7
+Riverside,Riverside,CA,California,6065,Riverside,33.9381,-117.3949,2288508,1504.7
+Las Vegas,Las Vegas,NV,Nevada,32003,Clark,36.2333,-115.2654,2256509,1771.5
+Baltimore,Baltimore,MD,Maryland,24510,Baltimore,39.3051,-76.6144,2189589,2753.1
+St. Louis,St. Louis,MO,Missouri,29510,St. Louis,38.6359,-90.2451,2127843,1833.6
+Portland,Portland,OR,Oregon,41051,Multnomah,45.5371,-122.65,2084045,1859
+San Antonio,San Antonio,TX,Texas,48029,Bexar,29.4632,-98.5238,2069843,1129
+Sacramento,Sacramento,CA,California,6067,Sacramento,38.5677,-121.4685,1962998,2054.1
+Austin,Austin,TX,Texas,48453,Travis,30.3005,-97.7522,1915031,1145
+Orlando,Orlando,FL,Florida,12095,Orange,28.4773,-81.337,1913597,1082
+San Juan,San Juan,PR,Puerto Rico,72127,San Juan,18.3985,-66.061,1809800,3110.1
+San Jose,San Jose,CA,California,6085,Santa Clara,37.3012,-121.848,1771563,2148.3
+Indianapolis,Indianapolis,IN,Indiana,18097,Marion,39.7771,-86.1458,1740984,943.3
+Pittsburgh,Pittsburgh,PA,Pennsylvania,42003,Allegheny,40.4397,-79.9763,1712828,2116.9
+Cincinnati,Cincinnati,OH,Ohio,39061,Hamilton,39.1413,-84.506,1704916,1534.2
+Manhattan,Manhattan,NY,New York,36061,New York,40.7834,-73.9662,1694263,28653.9
+Kansas City,Kansas City,MO,Missouri,29095,Jackson,39.1238,-94.5541,1686807,623.6
+Cleveland,Cleveland,OH,Ohio,39035,Cuyahoga,41.4764,-81.6805,1679247,1825.4
+Columbus,Columbus,OH,Ohio,39049,Franklin,39.9862,-82.9855,1578153,1585.7
+Bronx,Bronx,NY,New York,36005,Bronx,40.8501,-73.8662,1472654,13356.3
+Auburn,Auburn,AL,Alabama,1081,Lee,32.6087,-85.4903,108327,486.5

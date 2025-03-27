@@ -1,0 +1,36 @@
+---
+title: 'Coding Challenge 6: Loops and Functions'
+author: "Katie Temple"
+date: "2025-03-27"
+output: 
+   md_document:
+     variant: gfm 
+  word_document:
+    toc: true 
+---
+
+## Question 1
+2 pts. Regarding reproducibility, what is the main point of writing your own functions and iterations? 
+
+### Answer 1
+
+
+## Question 2
+2 pts. In your own words, describe how to write a function and a for loop in R 
+and how they work. Give me specifics like syntax, where to write code, and how 
+the results are returned. 
+
+### Answer 2
+
+
+## Question 3
+2 pts. Read in the Cities.csv file from Canvas using a relative file path.
+```{r}
+
+```
+
+## Question 4
+6 pts. Write a function to calculate the distance between two pairs of coordinates 
+based on the Haversine formula (see below). The input into the function should be
+lat1, lon1, lat2, and lon2. The function should return the object distance_km. 
+All the code included needs to go into the function.
