@@ -172,6 +172,9 @@ for(i in seq_along(nm)){
   result_i<- data.frame(distance2())
   distances.df<-rbind.data.frame(distances.df, result_i)
 }
-view(distances.df)
+print(distances.df)
 ```
 
+##Question 7
+link:
+<
