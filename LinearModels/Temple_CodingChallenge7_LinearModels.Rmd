@@ -148,4 +148,4 @@ one in group C while the other treatments have similar results to a, b, or a com
 Generate the gfm .md file along with a .html, .docx, or .pdf. Commit, and push the .md file to github and turn in the .html, .docx, or .pdf to Canvas. Provide me a link here to your github.
 
 Answer
-[link to Katie Temple's GitHub]
+[link to Katie Temple's GitHub](https://github.com/temkat/TempleReproducibilityClass2025/tree/c7a64474157de6d35ffc3d59441f94178d7f72c3/LinearModels)
