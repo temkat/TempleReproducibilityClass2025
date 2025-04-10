@@ -1,0 +1,209 @@
+---
+title: "Linear Models Homework"
+author: "Katie Temple"
+date: "2025-04-02"
+output: 
+  word_document:  
+    toc: true
+  html_document:
+---
+
+# Linear Models
+*I have taken Dr. Steury's WILD7150 and Dr. Gitzen's WILD7250 so this is all review for me*
+This tutorial is a brief overview/review on linear models.
+The following information is directly copied from Dr. Noel's Canvas page:
+We want to estimate slope, intercept, and standard deviation. Additionally, we want to minimize the distance from each point to the line (minimize the sum of squared errors/SSE).The sum of squares of the regression (SSR) is the distance between the best fit line and the average. Adding these together equals the total sum of squares. Partitioning this into SSR and SSE is related to pvalue. The smaller the SSE and higher the SSR, the smaller the p-value. 
+*I find Dr. Noel's explanation to be slightly more helpful than steury's*
+
+In general: - as slope goes up p-value goes down - as sample size goes up p-value goes down - as noise (error) goes down p-value goes down
+
+```{r}
+#load libraries
+library(tidyverse)
+library(lme4)
+library(emmeans)
+library(multcomp)
+```
+## Continuous X and Continuous Y
+Using the pre-loaded mtcars data from r we will practice some basic linear regression.
+
+The first step is always to visualize your data.
+
+If you have two continuous variables, you will want a scatter plot
+```{r}
+data("mtcars")
+ggplot(mtcars, aes(x=wt, y=mpg))+
+  geom_smooth(method = lm, se = FALSE, color = "grey")+
+  geom_point(aes(color = wt))+
+  xlab("Weight")+
+  ylab("Miles per gallon")+
+  scale_color_gradient(low = "forestgreen", high = "black")+
+  theme_classic()
+
+```
+To see confirm if there is a relationship or not, one can run a linear model(We run a linear model - or if it's a continuous x variable and a continuous y variable, we would call it a regression. If we consider it a cause-and-effect relationship, we may call it a correlation).
+
+```{r}
+lm(mpg ~ wt, data=mtcars) #output gives the predicted intercept/beta0
+summary(lm(mpg~wt, data=mtcars))
+```
+"Now, we have a pretty good idea that the slope is not equal to 0, and the intercept estimate is pretty good.
+
+Another thing to pay attention to is the R squared. This tells you the variation in y explained by x. So, in our case, about 74% of the variation in y is explained by the x variable."
+
+```{r}
+anova(lm(mpg~wt, data=mtcars))
+```
+
+" a linear model and an ANOVA are essentially the same things, and the value reported in the ANOVA is the value of the linear regression or our slope parameter. This means that wt has a significant effect on miles per gallon."
+```{r}
+#Correlation
+cor.test(mtcars$wt, mtcars$mpg)
+```
+
+This gives a different r value, which is the correlation stat. The closer to -1 or 1,
+the stronger the correlation between the two variables
+
+## Assumptions
+
+ 1. y is continuous
+ 2. error is normally distributed
+ 3. relationship is linear
+ 4. homoskedasticity
+ 5. sigma (standard deviation) is consistent
+ 6. independent samples/ no autocorrelation
+ 
+The main takeaway is that you need to know how to read your data and if you want to look
+at the residual plot to diagnose violated assumptions if any.
+
+```{r}
+#below is how you can get the residuals from the linear model
+model <- lm(mpg~wt, data = mtcars)
+
+ggplot(model, aes(y = .resid, x = .fitted)) +
+  geom_point() +
+  geom_hline(yintercept = 0)
+```
+
+## Cateogorical Variables
+Categorical x and continuous y- can preform a t-test
+
+```{r}
+bull.rich <- read.csv("Bull_richness(1).csv")
+
+#filter data to include one treatment and growth stage for demonstration of a t-test
+bull.rich%>%
+  filter(GrowthStage == "V8" & Treatment == "Conv.")%>%
+  ggplot(aes(x = Fungicide, y = richness))+
+  geom_boxplot()
+```
+```{r}
+#To test if there is actually a meaningful difference between the two, you can use
+#a t test. H0=no difference in groups
+
+bull.rich.sub <- bull.rich %>%
+  filter(GrowthStage == "V8" & Treatment == "Conv.")
+
+t.test(richness~Fungicide, data = bull.rich.sub)
+```
+
+If we run an lm or an ANOVA, the results should be the same assuming there is equal variance.
+The p-value tells is that the slope of the line is different than 0.  
+
+## ANOVAS
+Continuous y and multinomial categorical x (more than 2 groups).
+
+In the following example, filter the dataset to only ave richness in different crop
+growth stages in the control samples in soybean in conventional management. There are
+three growth stages.
+```{r}
+bull.rich.sub2 <- bull.rich %>%
+  filter(Fungicide == "C" & Treatment == "Conv." & Crop == "Corn")
+
+#Visualize the data
+bull.rich.sub2$GrowthStage <- factor(bull.rich.sub2$GrowthStage, levels = c("V6", "V8", "V15"))
+
+ggplot(bull.rich.sub2, aes(x = GrowthStage, y = richness)) +
+  geom_boxplot()
+```
+```{r}
+#can run an ANOVA as it's pretty much the same as a regression
+lm.growth <- lm(richness ~ GrowthStage, data = bull.rich.sub2)
+summary(lm.growth)
+
+anova(lm.growth)
+summary(aov(richness ~ GrowthStage, data = bull.rich.sub2))
+```
+To find out which is different from the other groups, we can do a post-hoc test.
+"We can do post-hoc tests to find out. The simplest way to think of this is individual t-tests across groups. The most versatile way to do this is with the packages means and multcomp.
+
+"The lsmeans are the least squared means - the means estimated by the linear model. This contrasts the arithmetic means, which are the emmeans calculated or the average."
+
+```{r}
+#install.packages("multcompView")
+library(multcompView)
+lsmeans <- emmeans(lm.growth, ~GrowthStage) # estimate lsmeans of variety within siteXyear
+Results_lsmeans <- cld(lsmeans, alpha = 0.05, reversed = TRUE, details = TRUE) # contrast with Tukey ajustment by default. 
+Results_lsmeans
+```
+
+## Interaction Terms
+Interaction between factors/does the effect of one variable depend on the other.
+
+Ex: Does Fungicide depend on time?
+Can use `*` between factors in an lm.
+
+```{r}
+bull.rich.sub3 <- bull.rich %>%
+  filter(Treatment == "Conv." & Crop == "Corn")
+
+bull.rich.sub3$GrowthStage <- factor(bull.rich.sub3$GrowthStage, levels = c("V6", "V8", "V15"))
+
+#two ways to write the iteraction factor demonstrated below
+lm.inter <- lm(richness ~ GrowthStage + Fungicide + GrowthStage:Fungicide, data = bull.rich.sub3)
+summary(lm.inter) #significant terms
+
+lm(richness ~ GrowthStage*Fungicide, data = bull.rich.sub3)
+
+anova(lm.inter)
+```
+I think the explanation provided word for word by Dr. Noel is the most straightforward and is therefore copied below.
+"So the interaction term is significant. In general you want to look at the most complex interaction that is significant and look at that first. But this means that the effect of fungicide is dependent on the growthstage, or in other words at least one comparison of fungicide within growthstage or growthstage within fungicide is significant."
+```{r}
+#Effect of fungicide over the levels of growthstage
+bull.rich.sub3 %>%
+  ggplot(aes(x = GrowthStage, y = richness, fill = Fungicide)) +
+  geom_boxplot()
+```
+```{r}
+#Can do a post-hoc test within the levels of growth stage to confirm what is being 
+#shown in the plot (that V8 affected overall richness more so than the others and that by #v15 they have recovered.)
+
+lsmeans <- emmeans(lm.inter, ~Fungicide|GrowthStage) # estimate lsmeans of variety within siteXyear
+Results_lsmeans <- cld(lsmeans, alpha = 0.05, reversed = TRUE, details = TRUE) # contrast with Tukey ajustment
+Results_lsmeans
+```
+## Mixed Effects Models
+"In mixed-effects models, we have fixed and random effects terms. The random effects term is something that affects the variation in y. A fixed effect is something that affects the mean of y. There are NO rules that determine what is a fixed or random effect. You have to justify that in your experimental design. Another way to think about this would be factors that you do not really care about affecting the mean but still want to account for that variation in your model so you can generalize over that factor. A common way that random effects are included in experimental designs is called the blocking factor."
+
+Common fixed effects for ag: treatment, species, gene.
+
+Common random effects (blocking factor): year, replicate, trial, individuals, 
+and fields
+```{r}
+lme0 <- lm(richness ~ GrowthStage*Fungicide, data = bull.rich.sub3)
+
+#use the lme4 package to include a random effect
+lme1 <- lmer(richness ~ GrowthStage*Fungicide + (1|Rep), data = bull.rich.sub3)
+summary(lme1)
+
+```
+In the above code we included the replicate variation  (spatial field variation)
+as an error term and the estimate of sigma/standard dev. due to the error that is associated with Rep.
+To understand what this does, look at the Betas in the original model.
+```{r}
+summary(lme0)
+
+summary(lme1)
+```
+"For some terms, it actually makes the standard error of our betas go down, which means we have better estimates of our betas, and we are more confident that we are estimating them correctly in our linear models, which means we have more power to detect differences."

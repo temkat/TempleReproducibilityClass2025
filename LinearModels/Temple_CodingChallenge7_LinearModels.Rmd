@@ -1,0 +1,151 @@
+---
+title: 'Coding Challenge 7: Linear Models'
+author: "Katie Temple"
+date: "2025-04-10"
+output:
+  html_document:
+    
+    toc: true
+    toc_float: true
+  word_document:
+    toc: true 
+  md_document:
+    variant: gfm 
+---
+## Question 1
+Read in the data called “PlantEmergence.csv” using a relative file path and load the following libraries. tidyverse, lme4, emmeans, multcomp, and multcompView. 4pts.
+
+Note: *Turn the Treatment , DaysAfterPlanting  and Rep into factors using the function as.factor.* 
+ 
+```{r}
+#Answer 1
+plant_emerge <- read.csv("PlantEmergence(1).csv", na.strings= "na")
+
+str(plant_emerge) #check structure
+
+#Load Libraries:
+library(tidyverse)
+library(lme4)
+library(emmeans)
+library(multcomp)
+library(multcompView)
+
+#Turn Treatment, DaysAfterPlanting, and Rep from int. to factors. Use as.factor func.
+plant_emerge$Treatment <- as.factor(plant_emerge$Treatment)
+plant_emerge$DaysAfterPlanting <- as.factor(plant_emerge$DaysAfterPlanting)
+plant_emerge$Rep <- as.factor(plant_emerge$Rep)
+
+```
+
+## Question 2
+Fit a linear model to predict `Emergence using` `Treatment` and `DaysAfterPlanting`
+along with the interaction. Provide the summary of the linear model and ANOVA results. 
+5pts.
+
+```{r}
+#Answer 2
+#Can help to visualize data first
+ggplot(plant_emerge, aes(x= DaysAfterPlanting, y= Emergence, color= Treatment, group= Treatment))+
+  geom_boxplot()
+
+#Linear Model no interaction
+lmTreatTime_inter <- lm(Emergence~ Treatment + DaysAfterPlanting + 
+                          Treatment:DaysAfterPlanting, data = plant_emerge)
+summary(lmTreatTime_inter) #gives betas, std. error etc., and p-value for each variable including interactions
+
+```
+```{r}
+anova(lmTreatTime_inter) #simplifies but no betas. Interaction term not significant 
+#(p=1).
+
+```
+## Question 3
+Based on the results of the linear model in question 2, do you need to fit the interaction term? Provide a simplified linear model without the interaction term but still testing both main effects. Provide the summary and ANOVA results. Then, interpret the intercept and the coefficient for Treatment 2.5pts.
+
+Answer 3: 
+No, you should not need to fit the interaction term based on the results from question 2
+as it is does not significantly contribute or improve the model.
+
+The intercept (182.163) calculated in the model without an interaction term  is the average Emergence of plants in Treatment 1 (the reference) at 7 days after planting (the reference for DaysAfterPlanting). 
+The coefficient for Treatment 2 is the difference between in emergence compared to treatment 1 and that emergence was significantly less for for treatment 2 plants. The p-value indicates that it is significant. 
+```{r}
+#Answer 3: 
+lmTreatTime <- lm(Emergence~ Treatment + DaysAfterPlanting, data = plant_emerge)
+summary(lmTreatTime)
+
+anova(lmTreatTime)
+
+```
+## Question 4
+Calculate the least square means for Treatment using the emmeans package and perform a Tukey separation with the compact letter display using the cld function. Interpret the results.5pts.
+
+Answer 4: 
+Plants treated with Treatment 2 had significantly lower emergence than the other treatments, with lowest emmean (55.6)
+and was not grouped with the other Treatments like 3,5, and 6 were. These had the highest emergence but were not significantly different from one another as they are in the same group. Treatment two was the only one to not have any overlaps with any of the grouping and is in group c by itself.
+
+```{r}
+#Answer 4
+lsmeans_treat <- emmeans(lmTreatTime, ~Treatment)
+lsmeans_treat
+
+Tukey.lsmeans_treat <- cld(lsmeans_treat, alpha = 0.05, reversed = TRUE, details = TRUE,
+                           Letters = letters) # contrast with Tukey ajustment by default
+
+Tukey.lsmeans_treat #provides comparisons between all treatments.
+```
+
+## Question 5
+The provided function lets you dynamically add a linear model plus one factor from that model and plots a bar chart with letters denoting treatment differences. Use this model to generate the plot shown below. Explain the significance of the letters. 4pts.
+
+Answer is located at the end of the code and plot. 
+```{r}
+#use the provided function
+plot_cldbars_onefactor <- function(lm_model, factor) {
+  data <- lm_model$model
+  variables <- colnames(lm_model$model)
+  dependent_var <- variables[1]
+  independent_var <- variables[2:length(variables)]
+
+  lsmeans <- emmeans(lm_model, as.formula(paste("~", factor))) # estimate lsmeans 
+  Results_lsmeans <- cld(lsmeans, alpha = 0.05, reversed = TRUE, details = TRUE, Letters = letters) # contrast with Tukey adjustment by default.
+
+  # Extracting the letters for the bars
+  sig.diff.letters <- data.frame(Results_lsmeans$emmeans[,1], 
+                                 str_trim(Results_lsmeans$emmeans[,7]))
+  colnames(sig.diff.letters) <- c(factor, "Letters")
+  
+  # for plotting with letters from significance test
+  ave_stand2 <- lm_model$model %>%
+    group_by(!!sym(factor)) %>%
+    dplyr::summarize(
+      ave.emerge = mean(.data[[dependent_var]], na.rm = TRUE),
+      se = sd(.data[[dependent_var]]) / sqrt(n())
+    ) %>%
+    left_join(sig.diff.letters, by = factor) %>%
+    mutate(letter_position = ave.emerge + 10 * se)
+  
+  plot <- ggplot(data, aes(x = !! sym(factor), y = !! sym(dependent_var))) + 
+    stat_summary(fun = mean, geom = "bar") +
+    stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.5) +
+    ylab("Number of emerged plants") + 
+    geom_jitter(width = 0.02, alpha = 0.5) +
+    geom_text(data = ave_stand2, aes(label = Letters, y = letter_position), size = 5) +
+    xlab(as.character(factor)) +
+    theme_classic()
+  
+  return(plot)
+}
+
+#Generate Plot
+plot_cldbars_onefactor(lmTreatTime, "Treatment")
+
+```
+The significance of the letters is demonstrating the grouping that was generated
+in the post-hoc test. The letters group statistically similar results. Treatment 2 is the only 
+one in group C while the other treatments have similar results to a, b, or a combination. Nothing overlaps into group c.
+
+## Question 6
+Generate the gfm .md file along with a .html, .docx, or .pdf. Commit, and push the .md file to github and turn in the .html, .docx, or .pdf to Canvas. Provide me a link here to your github.
+
+Answer
+[link to Katie Temple's GitHub]
